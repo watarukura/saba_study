@@ -22,7 +22,11 @@ pre-commit:
     lint:
       glob: "**.rs"
       root: "saba_core/"
-      run: cargo clippy
+      run: cargo clippy --exclude build --exclude target
+    test:
+      root: "saba_core"
+      glob: "**.rs"
+      run: cargo test
     typo:
       run: typos .
     taplo:
