@@ -14,3 +14,4 @@ packages:
   - name: crate-ci/typos@v1.27.3
   - name: tamasfe/taplo/full@0.9.3
   - name: rhysd/actionlint@v1.7.4
+  - name: direnv/direnv@v2.35.0

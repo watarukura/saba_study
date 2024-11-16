@@ -23,6 +23,10 @@ pre-commit:
       glob: "**.rs"
       root: "saba_core/"
       run: cargo clippy
+    test:
+      root: "saba_core"
+      glob: "**.rs"
+      run: cargo test
     typo:
       run: typos .
     taplo:
