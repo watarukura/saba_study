@@ -17,16 +17,16 @@ pre-commit:
   parallel: true
   commands:
     fmt:
-      glob: "*.rs"
+      glob: "**.rs"
       run: cargo fmt
     lint:
-      glob: "*.rs"
+      glob: "**.rs"
       root: "saba_core/"
       run: cargo clippy
     typo:
       run: typos .
     taplo:
-      glob: "*.toml"
+      glob: "**.toml"
       run: taplo format
     actionlint:
       glob: ".github/workflows/**.ya?ml"
