@@ -3,9 +3,9 @@
 
 extern crate alloc;
 
-use noli::entry_point;
 use crate::alloc::string::ToString;
 use net_wasabi::http::HttpClient;
+use noli::entry_point;
 use noli::prelude::*;
 
 fn main() -> u64 {
