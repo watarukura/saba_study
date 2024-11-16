@@ -22,11 +22,11 @@ jobs:
           cargo fmt --check
       - name: Run lint
         run: |
-          cd core
+          cd saba_core
           cargo clippy
       - name: Run tests
         run: |
-          cd core
+          cd saba_core
           cargo test
   typos:
     timeout-minutes: 10
