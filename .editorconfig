@@ -1,0 +1,11 @@
+; https://editorconfig.org/
+; cf. https://github.com/editorconfig/editorconfig-core-go/blob/7a883c16b169b9f36b3ac0bc5f7ad13f3d034978/.editorconfig
+
+root = true
+
+[*]
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2

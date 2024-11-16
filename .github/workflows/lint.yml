@@ -22,6 +22,7 @@ jobs:
           cargo fmt --check
       - name: Run lint
         run: |
+          cd core
           cargo clippy
       - name: Run tests
         run: |

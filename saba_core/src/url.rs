@@ -42,7 +42,11 @@ impl Url {
     }
 
     fn extract_host(&self) -> String {
-        let url_parts: Vec<&str> = self.url.trim_start_matches("http://").splitn(2, "/").collect();
+        let url_parts: Vec<&str> = self
+            .url
+            .trim_start_matches("http://")
+            .splitn(2, "/")
+            .collect();
         if let Some(index) = url_parts[0].find(':') {
             url_parts[0][..index].to_string()
         } else {
@@ -51,7 +55,11 @@ impl Url {
     }
 
     fn extract_port(&self) -> String {
-        let url_parts: Vec<&str> = self.url.trim_start_matches("http://").splitn(2, "/").collect();
+        let url_parts: Vec<&str> = self
+            .url
+            .trim_start_matches("http://")
+            .splitn(2, "/")
+            .collect();
         if let Some(index) = url_parts[0].find(':') {
             url_parts[0][index + 1..].to_string()
         } else {
@@ -60,7 +68,11 @@ impl Url {
     }
 
     fn extract_path(&self) -> String {
-        let url_parts: Vec<&str> = self.url.trim_start_matches("http://").splitn(2, "/").collect();
+        let url_parts: Vec<&str> = self
+            .url
+            .trim_start_matches("http://")
+            .splitn(2, "/")
+            .collect();
         if url_parts.len() < 2 {
             return "".to_string();
         }
@@ -69,7 +81,11 @@ impl Url {
     }
 
     fn extract_searchpart(&self) -> String {
-        let url_parts: Vec<&str> = self.url.trim_start_matches("http://").splitn(2, "/").collect();
+        let url_parts: Vec<&str> = self
+            .url
+            .trim_start_matches("http://")
+            .splitn(2, "/")
+            .collect();
         if url_parts.len() < 2 {
             return "".to_string();
         }
