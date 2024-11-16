@@ -1,3 +1,4 @@
+---
 # EXAMPLE USAGE:
 #
 #   Refer for explanation to following link:
@@ -12,17 +13,21 @@
 #       tags: backend security
 #       run: bundle audit
 #
- pre-commit:
-   parallel: true
-   commands:
-     fmt:
-       glob: "*.rs"
-       run: cargo fmt
-     lint:
-       glob: "*.rs"
-       run: cargo clippy
-     typo:
-       run: typos .
-     taplo:
-       glob: "*.toml"
-       run: taplo format
+pre-commit:
+  parallel: true
+  commands:
+    fmt:
+      glob: "**.rs"
+      run: cargo fmt
+    lint:
+      glob: "**.rs"
+      root: "saba_core/"
+      run: cargo clippy
+    typo:
+      run: typos .
+    taplo:
+      glob: "**.toml"
+      run: taplo format
+    actionlint:
+      glob: ".github/workflows/**.ya?ml"
+      run: actionlint

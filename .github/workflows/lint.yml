@@ -1,0 +1,90 @@
+---
+name: Lint
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-golang
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Run format
+        run: |
+          cargo fmt --check
+      - name: Run lint
+        run: |
+          cd saba_core
+          cargo clippy
+      - name: Run tests
+        run: |
+          cd saba_core
+          cargo test
+  typos:
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    name: typos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Setup aqua
+        timeout-minutes: 5
+        with:
+          aqua_version: v2.37.2
+        uses: aquaproj/aqua-installer@6ce1f8848ec8e61f14d57bd5d7597057a6dd187c # v3.0.1
+      - name: typos
+        timeout-minutes: 6
+        run: typos .
+  actionlint:
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Setup aqua
+        timeout-minutes: 5
+        with:
+          aqua_version: v2.37.2
+        uses: aquaproj/aqua-installer@6ce1f8848ec8e61f14d57bd5d7597057a6dd187c # v3.0.1
+      - name: typos
+        timeout-minutes: 6
+        run: actionlint
+  taplo:
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    name: taplo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Setup aqua
+        timeout-minutes: 5
+        with:
+          aqua_version: v2.37.2
+        uses: aquaproj/aqua-installer@6ce1f8848ec8e61f14d57bd5d7597057a6dd187c # v3.0.1
+      - name: taplo
+        timeout-minutes: 6
+        run: taplo format .
+  yamllint:
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    name: yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Yamllint Github Action
+        uses: karancode/yamllint-github-action@v2.1.1
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
