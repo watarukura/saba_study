@@ -4,9 +4,9 @@
 use noli::prelude::*;
 
 fn main() {
-    Api::write_string("Hello, world\n");
+    SystemApi::write_string("Hello, world\n");
     println!("Hello from println!");
-    Api::exit(42);
+    SystemApi::exit(42);
 }
 
-entry_point!(main);
+noli::entry_point!(main);
