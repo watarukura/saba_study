@@ -1,5 +1,5 @@
 use crate::renderer::dom::node::Window;
-use crate::renderer::dom::node::{ElementKind, Element, Node, NodeKind};
+use crate::renderer::dom::node::{Element, ElementKind, Node, NodeKind};
 use crate::renderer::html::attribute::Attribute;
 use crate::renderer::html::token::HtmlToken;
 use crate::renderer::html::token::HtmlTokenizer;
@@ -479,4 +479,6 @@ mod tests {
 
         assert_eq!(expected, window.borrow().document());
     }
+
+
 }

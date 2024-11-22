@@ -18,6 +18,12 @@ pub struct Node {
     next_sibling: Option<Rc<RefCell<Node>>>,
 }
 
+impl PartialEq for Node {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind
+    }
+}
+
 impl Node {
     pub fn new(kind: NodeKind) -> Self {
         Self {
