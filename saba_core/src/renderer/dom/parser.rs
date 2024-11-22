@@ -52,10 +52,10 @@ impl HtmlParser {
                             }
                         }
                         Some(HtmlToken::StartTag {
-                                 ref tag,
-                                 self_closing: _,
-                                 ref attributes,
-                             }) => {
+                            ref tag,
+                            self_closing: _,
+                            ref attributes,
+                        }) => {
                             if tag == "html" {
                                 self.insert_element(tag, attributes.to_vec());
                                 self.mode = InsertionMode::BeforeHead;
@@ -81,10 +81,10 @@ impl HtmlParser {
                             }
                         }
                         Some(HtmlToken::StartTag {
-                                 ref tag,
-                                 self_closing: _,
-                                 ref attributes,
-                             }) => {
+                            ref tag,
+                            self_closing: _,
+                            ref attributes,
+                        }) => {
                             if tag == "head" {
                                 self.insert_element(tag, attributes.to_vec());
                                 self.mode = InsertionMode::InHead;
@@ -111,10 +111,10 @@ impl HtmlParser {
                             }
                         }
                         Some(HtmlToken::StartTag {
-                                 ref tag,
-                                 self_closing: _,
-                                 ref attributes,
-                             }) => {
+                            ref tag,
+                            self_closing: _,
+                            ref attributes,
+                        }) => {
                             if tag == "style" || tag == "script" {
                                 self.insert_element(tag, attributes.to_vec());
                                 self.original_insertion_mode = self.mode;
@@ -151,10 +151,10 @@ impl HtmlParser {
                         }
                     }
                     Some(HtmlToken::StartTag {
-                             ref tag,
-                             self_closing: _,
-                             ref attributes,
-                         }) => {
+                        ref tag,
+                        self_closing: _,
+                        ref attributes,
+                    }) => {
                         if tag == "body" {
                             self.insert_element(tag, attributes.to_vec());
                             token = self.t.next();
@@ -170,10 +170,10 @@ impl HtmlParser {
                 InsertionMode::InBody => {
                     match token {
                         Some(HtmlToken::StartTag {
-                                 ref tag,
-                                 self_closing: _,
-                                 ref attributes,
-                             }) => match tag.as_str() {
+                            ref tag,
+                            self_closing: _,
+                            ref attributes,
+                        }) => match tag.as_str() {
                             "p" => {
                                 self.insert_element(tag, attributes.to_vec());
                                 token = self.t.next();
@@ -491,7 +491,10 @@ mod tests {
             document
         );
 
-        let html = document.borrow().first_child().expect("failed to get first child of document");
+        let html = document
+            .borrow()
+            .first_child()
+            .expect("failed to get first child of document");
         assert_eq!(
             Rc::new(RefCell::new(Node::new(NodeKind::Element(Element::new(
                 "html",
@@ -500,7 +503,10 @@ mod tests {
             html
         );
 
-        let head = html.borrow().first_child().expect("failed to get first child of html");
+        let head = html
+            .borrow()
+            .first_child()
+            .expect("failed to get first child of html");
         assert_eq!(
             Rc::new(RefCell::new(Node::new(NodeKind::Element(Element::new(
                 "head",
@@ -509,9 +515,15 @@ mod tests {
             head
         );
 
-        let body = head.borrow().next_sibling().expect("failed to get a next sibling of head");
+        let body = head
+            .borrow()
+            .next_sibling()
+            .expect("failed to get a next sibling of head");
         assert_eq!(
-            Rc::new(RefCell::new(Node::new(NodeKind::Element(Element::new("body", Vec::new()))))),
+            Rc::new(RefCell::new(Node::new(NodeKind::Element(Element::new(
+                "body",
+                Vec::new()
+            ))))),
             body
         );
     }
