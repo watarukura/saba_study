@@ -1,13 +1,13 @@
 use crate::browser::Browser;
+use crate::http::HttpResponse;
 use crate::renderer::dom::node::Window;
+use crate::renderer::dom::parser::HtmlParser;
+use crate::renderer::html::token::HtmlTokenizer;
+use crate::util::convert_dom_to_string;
 use alloc::rc::Rc;
 use alloc::rc::Weak;
 use alloc::string::{String, ToString};
 use core::cell::RefCell;
-use crate::http::HttpResponse;
-use crate::renderer::dom::parser::HtmlParser;
-use crate::renderer::html::token::HtmlTokenizer;
-use crate::util::convert_dom_to_string;
 
 #[derive(Debug, Clone)]
 pub struct Page {

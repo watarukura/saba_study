@@ -27,7 +27,8 @@ Data: xx xx xx
 fn main() -> u64 {
     let browser = Browser::new();
 
-    let response = HttpResponse::new(TEST_HTTP_RESPONSE.to_string()).expect("failed to parse http response");
+    let response =
+        HttpResponse::new(TEST_HTTP_RESPONSE.to_string()).expect("failed to parse http response");
     let page = browser.borrow().current_page();
     let dom_string = page.borrow_mut().receive_response(response);
 
