@@ -248,6 +248,7 @@ pub type ComponentValue = CssToken;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::vec;
 
     #[test]
     fn test_empty() {
@@ -256,5 +257,51 @@ mod tests {
         let cssom = CssParser::new(t).parse_stylesheet();
 
         assert_eq!(cssom.rules.len(), 0);
+    }
+
+    #[test]
+    fn test_one_rule() {
+        let style = "p { color: red; }".to_string();
+        let t = CssTokenizer::new(style);
+        let cssom = CssParser::new(t).parse_stylesheet();
+
+        let mut rule = QualifiedRule::new();
+        rule.set_selector(Selector::TypeSelector("p".to_string()));
+        let mut declaration = Declaration::new();
+        declaration.set_property("color".to_string());
+        declaration.set_value(ComponentValue::Ident("red".to_string()));
+        rule.set_declarations(vec![declaration]);
+
+        let expected = [rule];
+        assert_eq!(cssom.rules.len(), expected.len());
+
+        let mut i = 0;
+        for rule in &cssom.rules {
+            assert_eq!(&expected[i], rule);
+            i += 1;
+        }
+    }
+
+    #[test]
+    fn test_id_selector() {
+        let style = "#id { color: red; }".to_string();
+        let t = CssTokenizer::new(style);
+        let cssom = CssParser::new(t).parse_stylesheet();
+
+        let mut rule = QualifiedRule::new();
+        rule.set_selector(Selector::IdSelector("id".to_string()));
+        let mut declaration = Declaration::new();
+        declaration.set_property("color".to_string());
+        declaration.set_value(ComponentValue::Ident("red".to_string()));
+        rule.set_declarations(vec![declaration]);
+
+        let expected = [rule];
+        assert_eq!(cssom.rules.len(), expected.len());
+
+        let mut i = 0;
+        for rule in &cssom.rules {
+            assert_eq!(&expected[i], rule);
+            i += 1;
+        }
     }
 }
