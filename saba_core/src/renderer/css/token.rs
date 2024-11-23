@@ -175,7 +175,7 @@ impl Iterator for CssTokenizer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use alloc::string::{String, ToString};
+    use alloc::string::ToString;
 
     #[test]
     fn test_empty() {
