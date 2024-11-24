@@ -327,4 +327,37 @@ mod tests {
             i += 1;
         }
     }
+
+    #[test]
+    fn test_multiple_rules() {
+        let style = "p { color: red; } h1 { font-size: 40; color: blue; }".to_string();
+        let t = CssTokenizer::new(style);
+        let cssom = CssParser::new(t).parse_stylesheet();
+
+        let mut rule1 = QualifiedRule::new();
+        rule1.set_selector(Selector::TypeSelector("p".to_string()));
+        let mut declaration1 = Declaration::new();
+        declaration1.set_property("color".to_string());
+        declaration1.set_value(ComponentValue::Ident("red".to_string()));
+        rule1.set_declarations(vec![declaration1]);
+
+        let mut rule2 = QualifiedRule::new();
+        rule2.set_selector(Selector::TypeSelector("h1".to_string()));
+        let mut declaration2 = Declaration::new();
+        declaration2.set_property("font-size".to_string());
+        declaration2.set_value(ComponentValue::Number(40.0));
+        let mut declaration3 = Declaration::new();
+        declaration3.set_property("color".to_string());
+        declaration3.set_value(ComponentValue::Ident("blue".to_string()));
+        rule2.set_declarations(vec![declaration2, declaration3]);
+
+        let expected = [rule1, rule2];
+        assert_eq!(cssom.rules.len(), expected.len());
+
+        let mut i = 0;
+        for rule in &cssom.rules {
+            assert_eq!(&expected[i], rule);
+            i += 1;
+        }
+    }
 }
