@@ -332,7 +332,7 @@ impl LayoutPoint {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct LayoutSize {
     width: i64,
     height: i64,

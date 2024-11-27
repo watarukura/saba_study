@@ -224,7 +224,7 @@ impl Color {
     }
 
     pub fn code_u32(&self) -> u32 {
-        u32::from_str_radix(&self.code, 16).unwrap()
+        u32::from_str_radix(&self.code.trim_start_matches('#'), 16).unwrap()
     }
 }
 
