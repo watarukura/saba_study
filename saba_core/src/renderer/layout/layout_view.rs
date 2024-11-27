@@ -260,4 +260,54 @@ mod tests {
         let layout_view = create_layout_view(html);
         assert_eq!(None, layout_view.root());
     }
+
+    #[test]
+    fn test_hidden_class() {
+        let html = r#"<html>
+        <head>
+        <style>
+            .hidden {
+                display: none;
+            }
+        </style>
+        </head>
+        <body>
+            <a class="hidden">link1</a>
+            <p></p>
+            <p class="hidden"><a>link2</a></p>
+        </body>
+        </html>"#
+            .to_string();
+        let layout_view = create_layout_view(html);
+
+        let root = layout_view.root();
+        assert!(root.is_some());
+        assert_eq!(
+            LayoutObjectKind::Block,
+            root.clone().expect("root should exist").borrow().kind()
+        );
+
+        let p = root.expect("root should exist").borrow().first_child();
+        assert!(p.is_some());
+        assert_eq!(
+            LayoutObjectKind::Block,
+            p.clone().expect("p node should exist").borrow().kind()
+        );
+        assert_eq!(
+            NodeKind::Element(Element::new("p", Vec::new())),
+            p.clone().expect("p node should exist").borrow().node_kind()
+        );
+        assert!(p
+            .clone()
+            .expect("p node should exist")
+            .borrow()
+            .first_child()
+            .is_none());
+        assert!(p
+            .clone()
+            .expect("p node should exist")
+            .borrow()
+            .next_sibling()
+            .is_none());
+    }
 }
