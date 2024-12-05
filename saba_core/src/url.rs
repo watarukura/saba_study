@@ -1,3 +1,4 @@
+use alloc::format;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
@@ -23,7 +24,7 @@ impl Url {
 
     pub fn parse(&mut self) -> Result<Self, String> {
         if !self.is_http() {
-            return Err("Only HTTP scheme is supported".to_string());
+            return Err(format!("Only HTTP scheme is supported. {}", self.url));
         }
 
         self.host = self.extract_host();
@@ -185,14 +186,14 @@ mod tests {
     #[test]
     fn test_no_scheme() {
         let url = "example.com".to_string();
-        let expected = Err("Only HTTP scheme is supported".to_string());
+        let expected = Err("Only HTTP scheme is supported. example.com".to_string());
         assert_eq!(expected, Url::new(url).parse());
     }
 
     #[test]
     fn test_unsupported_scheme() {
         let url = "https://example.com:8888/index.html".to_string();
-        let expected = Err("Only HTTP scheme is supported".to_string());
+        let expected = Err("Only HTTP scheme is supported. https://example.com:8888/index.html".to_string());
         assert_eq!(expected, Url::new(url).parse());
     }
 }
