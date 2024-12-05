@@ -193,7 +193,8 @@ mod tests {
     #[test]
     fn test_unsupported_scheme() {
         let url = "https://example.com:8888/index.html".to_string();
-        let expected = Err("Only HTTP scheme is supported. https://example.com:8888/index.html".to_string());
+        let expected =
+            Err("Only HTTP scheme is supported. https://example.com:8888/index.html".to_string());
         assert_eq!(expected, Url::new(url).parse());
     }
 }
