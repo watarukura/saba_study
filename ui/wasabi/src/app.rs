@@ -69,9 +69,11 @@ impl WasabiUI {
             /*underline=*/ false,
         )?;
 
+        // アドレスバーの四角を描画
         self.window
             .fill_rect(WHITE, 70, 2, WINDOW_WIDTH - 74, 2 + ADDRESSBAR_HEIGHT)?;
 
+        // アドレスバーの影の線を描画
         self.window.draw_line(GREY, 70, 2, WINDOW_WIDTH - 4, 2)?;
         self.window
             .draw_line(GREY, 70, 2, 70, 2 + ADDRESSBAR_HEIGHT)?;
@@ -110,8 +112,8 @@ impl WasabiUI {
         handle_url: fn(String) -> Result<HttpResponse, Error>,
     ) -> Result<(), Error> {
         loop {
-            self.handle_key_input(handle_url)?;
             self.handle_mouse_input(handle_url)?;
+            self.handle_key_input(handle_url)?;
         }
     }
 
@@ -133,8 +135,8 @@ impl WasabiUI {
 
                 // ウィンドウ外をクリックされたときは何もしない
                 if relative_pos.0 < 0
-                    || relative_pos.1 < 0
                     || relative_pos.0 > WINDOW_WIDTH
+                    || relative_pos.1 < 0
                     || relative_pos.1 > WINDOW_HEIGHT
                 {
                     println!("button clicked OUTSIDE window: {button:?} {position:?}");
@@ -162,6 +164,8 @@ impl WasabiUI {
 
                 if let Some(url) = next_destination {
                     self.input_url = url.clone();
+                    self.update_address_bar()?;
+                    self.start_navigation(handle_url, url)?;
                 }
             }
         }
@@ -175,6 +179,7 @@ impl WasabiUI {
     ) -> Result<(), Error> {
         match self.input_mode {
             InputMode::Normal => {
+                // InputModeがNormalのとき、キー入力を無視する
                 let _ = Api::read_key();
             }
             InputMode::Editing => {
@@ -226,6 +231,7 @@ impl WasabiUI {
             return Err(Error::InvalidUI("failed to update address bar".to_string()));
         }
 
+        // アドレスバーの部分の画面を更新する
         self.window.flush_area(
             Rect::new(
                 WINDOW_INIT_X_POS,
