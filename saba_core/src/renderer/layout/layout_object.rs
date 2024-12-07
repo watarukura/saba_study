@@ -197,6 +197,8 @@ impl LayoutObject {
             LayoutObjectKind::Block => {
                 size.set_width(parent_size.width());
 
+                // すべての子ノードの高さを足し合わせた結果が高さになる
+                // ただし、インライン要素が横に並んでいる場合は注意が必要
                 let mut height = 0;
                 let mut child = self.first_child();
                 let mut previous_child_kind = LayoutObjectKind::Block;
@@ -209,7 +211,7 @@ impl LayoutObject {
                     if previous_child_kind == LayoutObjectKind::Block
                         || c.borrow().kind() == LayoutObjectKind::Block
                     {
-                        height = c.borrow().size.height();
+                        height += c.borrow().size.height();
                     }
 
                     previous_child_kind = c.borrow().kind();
@@ -244,6 +246,7 @@ impl LayoutObject {
                     };
                     let width = CHAR_WIDTH * ratio * t.len() as i64;
                     if width > CONTENT_AREA_WIDTH {
+                        // テキストが複数行のとき
                         size.set_width(CONTENT_AREA_WIDTH);
                         let line_num = if width.wrapping_rem(CONTENT_AREA_WIDTH) == 0 {
                             width.wrapping_div(CONTENT_AREA_WIDTH)
@@ -252,6 +255,7 @@ impl LayoutObject {
                         };
                         size.set_height(CHAR_HEIGHT_WITH_PADDING * ratio * line_num);
                     } else {
+                        // テキストが1行に収まるとき
                         size.set_width(width);
                         size.set_height(CHAR_HEIGHT_WITH_PADDING * ratio);
                     }
@@ -269,7 +273,9 @@ impl LayoutObject {
         previous_sibling_size: Option<LayoutSize>,
     ) {
         let mut point = LayoutPoint::new(0, 0);
+
         match (self.kind(), previous_sibling_kind) {
+            // もしブロック要素が兄弟ノードの場合、Y軸方向に進む
             (LayoutObjectKind::Block, _) | (_, LayoutObjectKind::Block) => {
                 if let (Some(size), Some(pos)) = (previous_sibling_size, previous_sibling_point) {
                     point.set_y(pos.y() + size.height());
@@ -292,6 +298,8 @@ impl LayoutObject {
                 point.set_y(parent_point.y());
             }
         }
+
+        self.point = point;
     }
 
     pub fn paint(&mut self) -> Vec<DisplayItem> {
