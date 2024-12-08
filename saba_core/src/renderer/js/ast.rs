@@ -197,9 +197,9 @@ mod test {
         let mut parser = JsParser::new(lexer);
         let mut expected = Program::new();
         let mut body = Vec::new();
-        body.push(Rc::new(Node::ExpressionStatement(
-            Some(Rc::new(Node::NumericLiteral(42))),
-        )));
+        body.push(Rc::new(Node::ExpressionStatement(Some(Rc::new(
+            Node::NumericLiteral(42),
+        )))));
         expected.set_body(body);
         assert_eq!(expected, parser.parse_ast());
     }
@@ -211,13 +211,13 @@ mod test {
         let mut parser = JsParser::new(lexer);
         let mut expected = Program::new();
         let mut body = Vec::new();
-        body.push(Rc::new(Node::ExpressionStatement(
-            Some(Rc::new(Node::AdditiveExpression {
+        body.push(Rc::new(Node::ExpressionStatement(Some(Rc::new(
+            Node::AdditiveExpression {
                 operator: '+',
                 left: Some(Rc::new(Node::NumericLiteral(1))),
                 right: Some(Rc::new(Node::NumericLiteral(2))),
-            }))
-        )));
+            },
+        )))));
         expected.set_body(body);
         assert_eq!(expected, parser.parse_ast());
     }
