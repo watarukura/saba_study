@@ -136,6 +136,7 @@ mod tests {
         let mut i = 0;
         for node in ast.body() {
             let result = runtime.eval(&Some(node.clone()));
+            assert_eq!(result, expected[i]);
             i += 1;
         }
     }
