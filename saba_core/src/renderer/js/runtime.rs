@@ -263,4 +263,21 @@ mod tests {
             i += 1;
         }
     }
+
+    #[test]
+    fn test_add_variable_and_num() {
+        let input = "var foo=42; foo+1".to_string();
+        let lexer = JsLexer::new(input);
+        let mut parser = JsParser::new(lexer);
+        let ast = parser.parse_ast();
+        let mut runtime = JsRuntime::new();
+        let expected = [None, Some(RuntimeValue::Number(43))];
+
+        let mut i = 0;
+        for node in ast.body() {
+            let result = runtime.eval(&Some(node.clone()), runtime.env.clone());
+            assert_eq!(result, expected[i]);
+            i += 1;
+        }
+    }
 }
