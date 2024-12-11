@@ -1,3 +1,4 @@
+use crate::renderer::dom::api::get_element_by_id;
 use crate::renderer::dom::node::Node as DomNode;
 use crate::renderer::dom::node::NodeKind as DomNodeKind;
 use crate::renderer::js::ast::{Node, Program};
@@ -9,7 +10,6 @@ use core::borrow::Borrow;
 use core::cell::RefCell;
 use core::fmt::{Display, Formatter};
 use core::ops::{Add, Sub};
-use crate::renderer::dom::api::get_element_by_id;
 
 pub struct JsRuntime {
     dom_root: Rc<RefCell<DomNode>>,
@@ -358,7 +358,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [Some(RuntimeValue::Number(42))];
 
         let mut i = 0;
