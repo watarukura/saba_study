@@ -1,3 +1,5 @@
+use crate::renderer::dom::node::Node as DomNode;
+use crate::renderer::dom::node::NodeKind as DomNodeKind;
 use crate::renderer::js::ast::{Node, Program};
 use alloc::format;
 use alloc::rc::Rc;
@@ -7,15 +9,18 @@ use core::borrow::Borrow;
 use core::cell::RefCell;
 use core::fmt::{Display, Formatter};
 use core::ops::{Add, Sub};
+use crate::renderer::dom::api::get_element_by_id;
 
 pub struct JsRuntime {
+    dom_root: Rc<RefCell<DomNode>>,
     functions: Vec<Function>,
     env: Rc<RefCell<Environment>>,
 }
 
 impl JsRuntime {
-    pub fn new() -> Self {
+    pub fn new(dom_root: Rc<RefCell<DomNode>>) -> Self {
         Self {
+            dom_root,
             functions: Vec::new(),
             env: Rc::new(RefCell::new(Environment::new(None))),
         }
@@ -76,12 +81,49 @@ impl JsRuntime {
                         return None;
                     }
                 }
+
+                if let Some(RuntimeValue::HtmlElement { object, property }) =
+                    self.eval(left, env.clone())
+                {
+                    let right_value = match self.eval(right, env.clone()) {
+                        Some(value) => value,
+                        None => return None,
+                    };
+
+                    if let Some(p) = property {
+                        if p == "textContent" {
+                            object
+                                .borrow_mut()
+                                .set_first_child(Some(Rc::new(RefCell::new(DomNode::new(
+                                    DomNodeKind::Text(right_value.to_string()),
+                                )))));
+                        }
+                    }
+                }
                 None
             }
-            Node::MemberExpression {
-                object: _,
-                property: _,
-            } => None,
+            Node::MemberExpression { object, property } => {
+                let object_value = match self.eval(object, env.clone()) {
+                    Some(value) => value,
+                    None => return None,
+                };
+                let property_value = match self.eval(property, env.clone()) {
+                    Some(value) => value,
+                    None => return Some(object_value),
+                };
+
+                if let RuntimeValue::HtmlElement { object, property } = object_value {
+                    assert!(property.is_none());
+                    return Some(RuntimeValue::HtmlElement {
+                        object,
+                        property: Some(property_value.to_string()),
+                    });
+                }
+
+                return Some(
+                    object_value + RuntimeValue::StringLiteral(".".to_string()) + property_value,
+                );
+            }
             Node::NumericLiteral(value) => Some(RuntimeValue::Number(*value)),
             Node::VariableDeclaration { declarations } => {
                 for declaration in declarations {
@@ -132,6 +174,11 @@ impl JsRuntime {
                     None => return None,
                 };
 
+                let api_result = self.call_browser_api(&callee_value, arguments, new_env.clone());
+                if api_result.0 {
+                    return api_result.1;
+                }
+
                 let function = {
                     let mut f: Option<Function> = None;
 
@@ -162,12 +209,43 @@ impl JsRuntime {
             }
         }
     }
+
+    fn call_browser_api(
+        &mut self,
+        func: &RuntimeValue,
+        arguments: &[Option<Rc<Node>>],
+        env: Rc<RefCell<Environment>>,
+    ) -> (bool, Option<RuntimeValue>) {
+        if func == &RuntimeValue::StringLiteral("document.getElementById".to_string()) {
+            let arg = match self.eval(&arguments[0], env.clone()) {
+                Some(a) => a,
+                None => return (true, None),
+            };
+            let target = match get_element_by_id(Some(self.dom_root.clone()), &arg.to_string()) {
+                Some(n) => n,
+                None => return (true, None),
+            };
+            return (
+                true,
+                Some(RuntimeValue::HtmlElement {
+                    object: target,
+                    property: None,
+                }),
+            );
+        }
+
+        (false, None)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeValue {
     Number(u64),
     StringLiteral(String),
+    HtmlElement {
+        object: Rc<RefCell<DomNode>>,
+        property: Option<String>,
+    },
 }
 
 impl Add<RuntimeValue> for RuntimeValue {
@@ -200,6 +278,12 @@ impl Display for RuntimeValue {
         let s = match self {
             RuntimeValue::Number(value) => format!("{}", value),
             RuntimeValue::StringLiteral(value) => value.to_string(),
+            RuntimeValue::HtmlElement {
+                object,
+                property: _,
+            } => {
+                format!("HtmlElement: {:#?}", object)
+            }
         };
         write!(f, "{}", s)
     }
@@ -291,7 +375,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [Some(RuntimeValue::Number(3))];
 
         let mut i = 0;
@@ -308,7 +393,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [Some(RuntimeValue::Number(1))];
 
         let mut i = 0;
@@ -325,7 +411,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [None];
         let mut i = 0;
 
@@ -342,7 +429,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [None, Some(RuntimeValue::Number(43))];
 
         let mut i = 0;
@@ -359,7 +447,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [None, None, Some(RuntimeValue::Number(1))];
 
         let mut i = 0;
@@ -376,7 +465,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [None, Some(RuntimeValue::Number(43))];
 
         let mut i = 0;
@@ -393,7 +483,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [None, Some(RuntimeValue::Number(6))];
 
         let mut i = 0;
@@ -410,7 +501,8 @@ mod tests {
         let lexer = JsLexer::new(input);
         let mut parser = JsParser::new(lexer);
         let ast = parser.parse_ast();
-        let mut runtime = JsRuntime::new();
+        let dom = Rc::new(RefCell::new(DomNode::new(DomNodeKind::Document)));
+        let mut runtime = JsRuntime::new(dom);
         let expected = [None, None, Some(RuntimeValue::Number(43))];
 
         let mut i = 0;
